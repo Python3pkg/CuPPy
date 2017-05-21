@@ -1,3 +1,3 @@
-import cuttingPlanes
-import genericSeparation
-import milpInstance
+from . import cuttingPlanes
+from . import genericSeparation
+from . import milpInstance

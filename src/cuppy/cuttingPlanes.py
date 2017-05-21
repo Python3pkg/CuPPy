@@ -9,7 +9,7 @@ import sys
 import math
 import numpy as np
 from cylp.py.modeling import CyLPArray
-from milpInstance import MILPInstance
+from .milpInstance import MILPInstance
 
 DISPLAY_ENABLED = True
 try:
@@ -27,7 +27,7 @@ def isInt(x, epsilon):
     Return True if x is an integer, or if x is a numpy array
     with all integer elements, False otherwise
     '''
-    if isinstance(x, (int, long, float)):
+    if isinstance(x, (int, float)):
         return abs(math.floor(x) - x) < epsilon
     return (np.abs(np.around(x) - x) < epsilon).all()
 
@@ -43,9 +43,9 @@ def gomoryCut(lp, integerIndices = None, sense = '>=', sol = None,
     if sol == None:
         sol = lp.primalVariableSolution['x']
     if rowInds is None:
-        rowInds = range(lp.nConstraints)
+        rowInds = list(range(lp.nConstraints))
     if integerIndices is None:
-        integerIndices = range(lp.nVariables)
+        integerIndices = list(range(lp.nVariables))
     for row in rowInds:
         basicVarInd = lp.basicVariables[row]
         if (basicVarInd in integerIndices) and (not isInt(sol[basicVarInd], epsilon)):
@@ -109,10 +109,10 @@ def solve(m, whichCuts = [],
     if display:
         disp_relaxation(m.A, m.b)
     
-    for i in xrange(max_iter):
-        print 'Iteration ', i
+    for i in range(max_iter):
+        print('Iteration ', i)
         m.lp.primal(startFinishOptions = 'x')
-        print 'Current bound:', m.lp.objectiveValue
+        print('Current bound:', m.lp.objectiveValue)
         #Binv = np.zeros(shape = (lp.nConstraints, lp.nConstraints))
         #for i in range(lp.nVariables, lp.nVariables+lp.nConstraints):
         #    lp.getBInvACol(i, Binv[i-lp.nVariables,:])
@@ -123,17 +123,17 @@ def solve(m, whichCuts = [],
             rhs = np.dot(m.lp.basisInverse, m.lp.constraintsLower)
         sol = m.lp.primalVariableSolution['x']
         if debug_print:
-            print 'Current basis inverse:'
-            print m.lp.basisInverse
-            print 'Condition number of basis inverse'
-            print np.linalg.cond(m.lp.basisInverse)
-            print "Current tableaux:"
-            print m.lp.tableau
-            print "Current right hand side:\n", rhs
+            print('Current basis inverse:')
+            print(m.lp.basisInverse)
+            print('Condition number of basis inverse')
+            print(np.linalg.cond(m.lp.basisInverse))
+            print("Current tableaux:")
+            print(m.lp.tableau)
+            print("Current right hand side:\n", rhs)
             #print lp.rhs
-        print 'Current solution: ', sol
+        print('Current solution: ', sol)
         if isInt(sol[m.integerIndices], epsilon):
-            print 'Integer solution found!'
+            print('Integer solution found!')
             break
         cuts = []
         disj = []
@@ -142,17 +142,17 @@ def solve(m, whichCuts = [],
             cuts += tmp_cuts
             disj += tmp_disj
         if cuts == []:
-            print 'No cuts found!'
+            print('No cuts found!')
             break
         if display:
             disp_relaxation(m.A, m.b, cuts, sol, disj)
         for (coeff, r) in cuts[:max_cuts]:
             #TODO sort cuts by degree of violation
             if m.sense == '<=':
-                print 'Adding cut: ', coeff, '<=', r
+                print('Adding cut: ', coeff, '<=', r)
                 m.lp += CyLPArray(coeff) * m.x <= r
             else:
-                print 'Adding cut: ', coeff, '>=', r
+                print('Adding cut: ', coeff, '>=', r)
                 m.lp += CyLPArray(coeff) * m.x >= r
             if display:
                 m.A.append(coeff.tolist())

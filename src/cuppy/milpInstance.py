@@ -69,8 +69,7 @@ class MILPInstance:
                     numVars = len(mip.A)
        
             if numVars is None:
-                raise("Must specify number of variables when problem is not"+
-                      "in inequality form")   
+                raise "Must specify number of variables when problem is not"   
                 
             lp = CyClpSimplex()
             if self.A is not None:
@@ -81,8 +80,7 @@ class MILPInstance:
                 A = np.matrix(p.hrep.A)
                 b = np.matrix(p.hrep.b)
             else:
-                raise("Must specify problem in inequality form with more than two variables\n"+
-                      "or when GrUMPy is not installed")   
+                raise "Must specify problem in inequality form with more than two variables\n"   
         
             #Warning: At the moment, you must put bound constraints in explicitly for split cuts
             x_l = CyLPArray([0 for _ in range(numVars)])
